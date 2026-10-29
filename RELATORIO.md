@@ -82,7 +82,7 @@ A calibração comparou Insertion Sort e o método híbrido para listas de 16, 2
 | 48 | 0,000037637 | 0,000033429 |
 | 64 | 0,000074010 | 0,000046562 |
 
-Nos dados avaliados, Insertion Sort apresentou mediana inferior à do híbrido até 32 elementos. A partir desse tamanho, o híbrido passou a apresentar resultado melhor entre os candidatos comparados. Por isso, o limiar de 32 elementos foi mantido.
+Nos dados avaliados, Insertion Sort apresentou mediana inferior à do método híbrido para listas de até 32 elementos. Para os tamanhos de 48 e 64 elementos, o método híbrido apresentou resultados melhores entre os dois candidatos comparados. Por isso, o limiar de 32 elementos foi mantido para a seleção de Insertion Sort.
 
 ### 5.3. Limite de descidas amostradas
 
