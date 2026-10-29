@@ -207,41 +207,38 @@ def _executar_com_limite(
     )
     processo.start()
     conexao_filho.close()
-    if not conexao_pai.poll(TEMPO_LIMITE_SEGUNDOS):
-        if not processo.is_alive():
+    recebeu_dados = conexao_pai.poll(TEMPO_LIMITE_SEGUNDOS)
+
+    if not recebeu_dados:
+        if processo.is_alive():
+            processo.terminate()
             processo.join()
-            try:
-                resultado = conexao_pai.recv()
-            except (EOFError, OSError):
-                resultado = (
-                    "erro",
-                    None,
-                    None,
-                    "O processo filho terminou sem enviar um resultado "
-                    f"(código de saída {processo.exitcode}).",
-                )
             conexao_pai.close()
-            return resultado
-        processo.terminate()
+            return (
+                "interrompida",
+                None,
+                None,
+                f"Execução excedeu o limite de "
+                f"{TEMPO_LIMITE_SEGUNDOS:g} segundos",
+            )
+
         processo.join()
-        conexao_pai.close()
-        return (
-            "interrompida",
-            None,
-            None,
-            (f"Execução excedeu o limite de {TEMPO_LIMITE_SEGUNDOS:g} segundos"),
-        )
+
     try:
         resultado = conexao_pai.recv()
-    except Exception as erro:
+    except (EOFError, OSError) as erro:
+        processo.join()
         resultado = (
             "erro",
             None,
             None,
-            f"Não foi possível recuperar o resultado do processo: {erro}",
+            "O processo filho terminou sem enviar um resultado "
+            f"(código de saída {processo.exitcode}). "
+            f"Detalhe: {erro}",
         )
     finally:
         conexao_pai.close()
+
     processo.join()
     return resultado
 
