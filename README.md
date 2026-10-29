@@ -206,6 +206,7 @@ Consulte [`RELATORIO.md`](RELATORIO.md) para conhecer a metodologia, as medianas
 
 - Counting Sort verifica os limites de amplitude e memória antes de realizar alocações potencialmente excessivas.
 - O limite de tempo por execução é configurável pela variável de ambiente `ORDENACAO_TIMEOUT_S` e tem valor padrão de 60 segundos.
+- `ORDENACAO_TIMEOUT_S` deve ser um número finito e positivo.
 - Uma heurística baseada em amostragem pode não representar adequadamente a lista inteira.
 - O custo da seleção também faz parte do desempenho do método automático.
 - Os tempos variam conforme o hardware, o sistema operacional e a versão do Python.
@@ -222,7 +223,6 @@ Escolhedor-de-Ordenacao/
 ├── experimentos.py
 ├── calibracao.py
 ├── calibracao_seletor.py
-├── requirements.txt
 ├── RELATORIO.md
 ├── resultados/
 │   ├── resultados.csv
