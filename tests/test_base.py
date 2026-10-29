@@ -1,6 +1,8 @@
 """Testes do método base."""
-from algoritmos import base
+
 import unittest
+
+from algoritmos import base
 from tests.helpers import TesteComumOrdenacao
 
 

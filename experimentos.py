@@ -1,4 +1,5 @@
 """Geração de cenários, medições reproduzíveis, CSV e busca adversarial."""
+
 from __future__ import annotations
 
 import csv
@@ -18,9 +19,9 @@ from threading import current_thread, main_thread
 from typing import Any
 
 from algoritmos import (
+    LIMITE_HIBRIDO,
     MAX_AMPLITUDE_CONTAGEM,
     MAX_MEMORIA_AUXILIAR_CONTAGEM,
-    LIMITE_HIBRIDO,
     executar_metodo,
 )
 from seletor import escolher, ordenar
@@ -38,9 +39,7 @@ def _obter_timeout() -> float:
     try:
         timeout = float(texto)
     except ValueError as erro:
-        raise ValueError(
-            "ORDENACAO_TIMEOUT_S deve ser um número positivo."
-        ) from erro
+        raise ValueError("ORDENACAO_TIMEOUT_S deve ser um número positivo.") from erro
     if not math.isfinite(timeout) or timeout <= 0:
         raise ValueError("ORDENACAO_TIMEOUT_S deve ser um número positivo.")
     return timeout
@@ -50,9 +49,21 @@ TEMPO_LIMITE_SEGUNDOS = _obter_timeout()
 METODOS_FIXOS = ["insercao", "intercalacao", "rapida", "hibrida", "contagem", "base"]
 ALTERNATIVAS = METODOS_FIXOS + ["ordenar"]
 CAMPOS = [
-    "cenario", "metodo", "repeticao", "tempo_ordenacao_s", "tempo_selecao_s",
-    "tempo_total_s", "tamanho_entrada", "seed_dados", "seed_algoritmo",
-    "parametros", "metodo_escolhido", "status", "erro", "python", "sistema_operacional",
+    "cenario",
+    "metodo",
+    "repeticao",
+    "tempo_ordenacao_s",
+    "tempo_selecao_s",
+    "tempo_total_s",
+    "tamanho_entrada",
+    "seed_dados",
+    "seed_algoritmo",
+    "parametros",
+    "metodo_escolhido",
+    "status",
+    "erro",
+    "python",
+    "sistema_operacional",
 ]
 
 
@@ -66,7 +77,9 @@ def _gerar_cenarios() -> dict[str, dict[str, Any]]:
     seed_a = 41001
     rng_a = random.Random(seed_a)
     cenarios["A_aleatoria_ampla"] = {
-        "valores": [rng_a.randint(-1_000_000_000, 1_000_000_000) for _ in range(10_000)],
+        "valores": [
+            rng_a.randint(-1_000_000_000, 1_000_000_000) for _ in range(10_000)
+        ],
         "seed_dados": seed_a,
         "descricao": "10.000 inteiros uniformes entre -1.000.000.000 e 1.000.000.000",
         "parametros": "distribuicao=uniforme;min=-1000000000;max=1000000000;seed=41001",
@@ -105,15 +118,18 @@ def _gerar_cenarios() -> dict[str, dict[str, Any]]:
     return cenarios
 
 
-def _trabalho_medido(nome: str, valores: list[int], seed: int,
-                     limite_hibrido: int) -> tuple[str, float | None, list[int] | None, str]:
+def _trabalho_medido(
+    nome: str, valores: list[int], seed: int, limite_hibrido: int
+) -> tuple[str, float | None, list[int] | None, str]:
     """Função-alvo de processo; o relógio mede só a chamada do algoritmo."""
     inicio = time.perf_counter()
     try:
         if nome == "ordenar":
             resultado = ordenar(valores, seed=seed)
         else:
-            resultado = executar_metodo(nome, valores, seed=seed, limite_hibrido=limite_hibrido)
+            resultado = executar_metodo(
+                nome, valores, seed=seed, limite_hibrido=limite_hibrido
+            )
         return "concluida", time.perf_counter() - inicio, resultado, ""
     except ValueError as erro:
         status = "recusada_limite" if nome == "contagem" else "erro"
@@ -121,25 +137,38 @@ def _trabalho_medido(nome: str, valores: list[int], seed: int,
     except TempoEsgotado:
         raise
     except Exception as erro:
-        return "erro", time.perf_counter() - inicio, None, f"{type(erro).__name__}: {erro}"
+        return (
+            "erro",
+            time.perf_counter() - inicio,
+            None,
+            f"{type(erro).__name__}: {erro}",
+        )
 
 
-def _worker_processo(conexao: Any, nome: str, valores: list[int], seed: int,
-                     limite_hibrido: int) -> None:
+def _worker_processo(
+    conexao: Any, nome: str, valores: list[int], seed: int, limite_hibrido: int
+) -> None:
     try:
         conexao.send(_trabalho_medido(nome, valores, seed, limite_hibrido))
     finally:
         conexao.close()
 
 
-def _executar_com_limite(nome: str, valores: list[int], seed: int) -> tuple[str, float | None, list[int] | None, str]:
+def _executar_com_limite(
+    nome: str, valores: list[int], seed: int
+) -> tuple[str, float | None, list[int] | None, str]:
     """Executa com timeout individual; no POSIX usa alarme sem criar subprocesso."""
-    if (os.name == "posix" and hasattr(signal, "setitimer")
-            and current_thread() is main_thread()):
+    if (
+        os.name == "posix"
+        and hasattr(signal, "setitimer")
+        and current_thread() is main_thread()
+    ):
+
         def interromper(_sinal: int, _quadro: Any) -> None:
             raise TempoEsgotado(
                 f"Execução excedeu o limite de {TEMPO_LIMITE_SEGUNDOS:g} segundos"
             )
+
         handler_anterior = signal.signal(signal.SIGALRM, interromper)
         alarme_anterior = signal.setitimer(signal.ITIMER_REAL, TEMPO_LIMITE_SEGUNDOS)
         try:
@@ -169,7 +198,9 @@ def _executar_com_limite(nome: str, valores: list[int], seed: int) -> tuple[str,
                 resultado = conexao_pai.recv()
             except (EOFError, OSError):
                 resultado = (
-                    "erro", None, None,
+                    "erro",
+                    None,
+                    None,
                     "O processo filho terminou sem enviar um resultado "
                     f"(código de saída {processo.exitcode}).",
                 )
@@ -178,14 +209,21 @@ def _executar_com_limite(nome: str, valores: list[int], seed: int) -> tuple[str,
         processo.terminate()
         processo.join()
         conexao_pai.close()
-        return "interrompida", None, None, (
-            f"Execução excedeu o limite de {TEMPO_LIMITE_SEGUNDOS:g} segundos"
+        return (
+            "interrompida",
+            None,
+            None,
+            (f"Execução excedeu o limite de {TEMPO_LIMITE_SEGUNDOS:g} segundos"),
         )
     try:
         resultado = conexao_pai.recv()
     except Exception as erro:
-        resultado = ("erro", None, None,
-                     f"Não foi possível recuperar o resultado do processo: {erro}")
+        resultado = (
+            "erro",
+            None,
+            None,
+            f"Não foi possível recuperar o resultado do processo: {erro}",
+        )
     finally:
         conexao_pai.close()
     processo.join()
@@ -198,8 +236,15 @@ def _medir_escolha(valores: list[int]) -> float:
     return time.perf_counter() - inicio
 
 
-def _linha(cenario: str, metodo: str, repeticao: int, seed_dados: int,
-           seed_algoritmo: int, parametros: str, escolhido: str = "") -> dict[str, Any]:
+def _linha(
+    cenario: str,
+    metodo: str,
+    repeticao: int,
+    seed_dados: int,
+    seed_algoritmo: int,
+    parametros: str,
+    escolhido: str = "",
+) -> dict[str, Any]:
     return {
         "cenario": cenario,
         "metodo": metodo,
@@ -238,7 +283,9 @@ def executar_experimentos() -> list[dict[str, Any]]:
     )
     print(validacao.stdout)
     if validacao.returncode != 0:
-        raise RuntimeError("A suíte de testes falhou; os experimentos finais não foram iniciados.")
+        raise RuntimeError(
+            "A suíte de testes falhou; os experimentos finais não foram iniciados."
+        )
 
     cenarios = _gerar_cenarios()
     linhas: list[dict[str, Any]] = []
@@ -252,22 +299,34 @@ def executar_experimentos() -> list[dict[str, Any]]:
             random.Random(71000 + indice_cenario * 100 + repeticao).shuffle(ordem)
             seed_algoritmo = 80000 + indice_cenario * 1000 + repeticao
             for metodo in ordem:
-                escolhido = escolher(referencia) if metodo == "ordenar" and len(referencia) > 1 else ""
+                escolhido = (
+                    escolher(referencia)
+                    if metodo == "ordenar" and len(referencia) > 1
+                    else ""
+                )
                 registro = _linha(
-                    nome_cenario, metodo, repeticao, info["seed_dados"],
+                    nome_cenario,
+                    metodo,
+                    repeticao,
+                    info["seed_dados"],
                     seed_algoritmo if metodo in ("rapida", "hibrida", "ordenar") else 0,
-                    info["parametros"] + f";limite_execucao_s={TEMPO_LIMITE_SEGUNDOS:g};limite_contagem={MAX_AMPLITUDE_CONTAGEM};memoria_contagem={MAX_MEMORIA_AUXILIAR_CONTAGEM};limite_hibrido={LIMITE_HIBRIDO}",
+                    info["parametros"]
+                    + f";limite_execucao_s={TEMPO_LIMITE_SEGUNDOS:g};limite_contagem={MAX_AMPLITUDE_CONTAGEM};memoria_contagem={MAX_MEMORIA_AUXILIAR_CONTAGEM};limite_hibrido={LIMITE_HIBRIDO}",
                     escolhido,
                 )
                 registro["tamanho_entrada"] = len(referencia)
                 if metodo == "ordenar":
-                    registro["tempo_selecao_s"] = f"{_medir_escolha(referencia.copy()):.9f}"
+                    registro["tempo_selecao_s"] = (
+                        f"{_medir_escolha(referencia.copy()):.9f}"
+                    )
                 status, decorrido, resultado, erro = _executar_com_limite(
                     metodo, referencia.copy(), seed_algoritmo
                 )
                 if status == "concluida":
                     if resultado != esperado:
-                        raise RuntimeError(f"Resultado incorreto: {nome_cenario}/{metodo}/{repeticao}")
+                        raise RuntimeError(
+                            f"Resultado incorreto: {nome_cenario}/{metodo}/{repeticao}"
+                        )
                     if metodo == "ordenar":
                         registro["tempo_total_s"] = f"{decorrido:.9f}"
                     else:
@@ -277,10 +336,14 @@ def executar_experimentos() -> list[dict[str, Any]]:
                 registro["erro"] = erro
                 linhas.append(registro)
                 if registro["status"] != "concluida":
-                    print(f"  {metodo:12} repetição {repeticao:2}: {registro['status']} — {registro['erro']}")
+                    print(
+                        f"  {metodo:12} repetição {repeticao:2}: {registro['status']} — {registro['erro']}"
+                    )
         _salvar_csv(ARQUIVO_RESULTADOS, linhas)
         print(f"CSV atualizado: {ARQUIVO_RESULTADOS}")
-    print(f"\nMedições principais gravadas: {len(linhas)} linhas em {ARQUIVO_RESULTADOS}")
+    print(
+        f"\nMedições principais gravadas: {len(linhas)} linhas em {ARQUIVO_RESULTADOS}"
+    )
     return linhas
 
 
@@ -319,28 +382,46 @@ def buscar_caso_adversarial() -> tuple[int, list[int], list[dict[str, Any]]]:
         mediana_escolhido = medianas.get(escolhido)
         menor_metodo = min(medianas, key=medianas.get) if medianas else ""
         menor_tempo = medianas.get(menor_metodo)
-        falha = bool(mediana_escolhido is not None and menor_tempo is not None
-                     and menor_metodo != escolhido and menor_tempo < mediana_escolhido)
-        tentativas.append({
-            "seed": seed,
-            "tamanho": len(entrada),
-            "trocas": 100,
-            "metodo_escolhido": escolhido,
-            "mediana_metodo_escolhido_s": f"{mediana_escolhido:.9f}" if mediana_escolhido is not None else "",
-            "metodo_mais_rapido_na_busca": menor_metodo,
-            "menor_mediana_s": f"{menor_tempo:.9f}" if menor_tempo is not None else "",
-            "tentativa_confirmada": str(falha).lower(),
-            "medianas_metodos_s": ";".join(f"{k}:{v:.9f}" for k, v in sorted(medianas.items())),
-        })
+        falha = bool(
+            mediana_escolhido is not None
+            and menor_tempo is not None
+            and menor_metodo != escolhido
+            and menor_tempo < mediana_escolhido
+        )
+        tentativas.append(
+            {
+                "seed": seed,
+                "tamanho": len(entrada),
+                "trocas": 100,
+                "metodo_escolhido": escolhido,
+                "mediana_metodo_escolhido_s": f"{mediana_escolhido:.9f}"
+                if mediana_escolhido is not None
+                else "",
+                "metodo_mais_rapido_na_busca": menor_metodo,
+                "menor_mediana_s": f"{menor_tempo:.9f}"
+                if menor_tempo is not None
+                else "",
+                "tentativa_confirmada": str(falha).lower(),
+                "medianas_metodos_s": ";".join(
+                    f"{k}:{v:.9f}" for k, v in sorted(medianas.items())
+                ),
+            }
+        )
         _salvar_busca(tentativas)
         if falha:
             encontrado = (seed, entrada)
-            print(f"Caso adversarial encontrado: seed={seed}; seletor={escolhido}; mais rápido preliminar={menor_metodo}")
+            print(
+                f"Caso adversarial encontrado: seed={seed}; seletor={escolhido}; mais rápido preliminar={menor_metodo}"
+            )
             break
-        print(f"Busca adversarial: seed={seed}, seletor={escolhido}, sem falha confirmada nesta tentativa.")
+        print(
+            f"Busca adversarial: seed={seed}, seletor={escolhido}, sem falha confirmada nesta tentativa."
+        )
 
     if encontrado is None:
-        print(f"Nenhum caso foi confirmado nas {max_sementes} sementes; a busca fica documentada em {ARQUIVO_BUSCA}.")
+        print(
+            f"Nenhum caso foi confirmado nas {max_sementes} sementes; a busca fica documentada em {ARQUIVO_BUSCA}."
+        )
         return -1, [], tentativas
     return encontrado[0], encontrado[1], tentativas
 
@@ -348,8 +429,17 @@ def buscar_caso_adversarial() -> tuple[int, list[int], list[dict[str, Any]]]:
 def _salvar_busca(linhas: list[dict[str, Any]]) -> None:
     caminho = ARQUIVO_BUSCA
     caminho.parent.mkdir(parents=True, exist_ok=True)
-    campos = ["seed", "tamanho", "trocas", "metodo_escolhido", "mediana_metodo_escolhido_s",
-              "metodo_mais_rapido_na_busca", "menor_mediana_s", "tentativa_confirmada", "medianas_metodos_s"]
+    campos = [
+        "seed",
+        "tamanho",
+        "trocas",
+        "metodo_escolhido",
+        "mediana_metodo_escolhido_s",
+        "metodo_mais_rapido_na_busca",
+        "menor_mediana_s",
+        "tentativa_confirmada",
+        "medianas_metodos_s",
+    ]
     with caminho.open("w", newline="", encoding="utf-8") as arquivo:
         escritor = csv.DictWriter(arquivo, fieldnames=campos)
         escritor.writeheader()
@@ -369,8 +459,15 @@ def executar_experimento_adversarial() -> list[dict[str, Any]]:
         random.Random(99000 + repeticao).shuffle(ordem)
         seed_algoritmo = seed + repeticao
         for metodo in ordem:
-            registro = _linha("E_adversarial", metodo, repeticao, seed, seed_algoritmo,
-                              parametros, metodo_escolhido)
+            registro = _linha(
+                "E_adversarial",
+                metodo,
+                repeticao,
+                seed,
+                seed_algoritmo,
+                parametros,
+                metodo_escolhido,
+            )
             registro["tamanho_entrada"] = len(entrada)
             if metodo == "ordenar":
                 registro["tempo_selecao_s"] = f"{_medir_escolha(entrada.copy()):.9f}"
@@ -379,7 +476,9 @@ def executar_experimento_adversarial() -> list[dict[str, Any]]:
             )
             if estado == "concluida":
                 if resultado != resultado_esperado:
-                    raise RuntimeError(f"Resultado incorreto no caso adversarial: {metodo}/{repeticao}")
+                    raise RuntimeError(
+                        f"Resultado incorreto no caso adversarial: {metodo}/{repeticao}"
+                    )
                 if metodo == "ordenar":
                     registro["tempo_total_s"] = f"{decorrido:.9f}"
                 else:

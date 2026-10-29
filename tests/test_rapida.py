@@ -1,6 +1,8 @@
 """Testes do método rapida."""
-from algoritmos import rapida
+
 import unittest
+
+from algoritmos import rapida
 from tests.helpers import TesteComumOrdenacao
 
 

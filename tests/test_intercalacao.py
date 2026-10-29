@@ -1,6 +1,8 @@
 """Testes do método intercalacao."""
-from algoritmos import intercalacao
+
 import unittest
+
+from algoritmos import intercalacao
 from tests.helpers import TesteComumOrdenacao
 
 

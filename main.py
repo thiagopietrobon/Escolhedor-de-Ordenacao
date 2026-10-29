@@ -1,4 +1,5 @@
 """Demonstração interativa do seletor automático no terminal."""
+
 from seletor import escolher, ordenar
 
 
@@ -9,7 +10,9 @@ def ler_lista() -> list[int]:
     try:
         return [int(parte) for parte in texto.split()]
     except ValueError as erro:
-        raise ValueError("Entrada inválida: informe somente números inteiros.") from erro
+        raise ValueError(
+            "Entrada inválida: informe somente números inteiros."
+        ) from erro
 
 
 def main() -> None:

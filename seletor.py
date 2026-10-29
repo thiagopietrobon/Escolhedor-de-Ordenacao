@@ -1,16 +1,18 @@
 """Seletor automático e função pública de ordenação."""
+
 from __future__ import annotations
 
+import sys
+
 from algoritmos import (
-    MAX_AMPLITUDE_CONTAGEM,
-    MAX_MEMORIA_AUXILIAR_CONTAGEM,
     BYTES_ESTIMADOS_POR_CONTAGEM,
     LIMITE_HIBRIDO,
+    MAX_AMPLITUDE_CONTAGEM,
+    MAX_MEMORIA_AUXILIAR_CONTAGEM,
     METODOS,
-    hibrida,
     _validar_limites_contagem,
+    hibrida,
 )
-import sys
 
 # Critérios iniciais calibrados separadamente dos quatro cenários finais.
 TAMANHO_MAXIMO_INSERCAO = 32
@@ -54,9 +56,11 @@ def escolher(v: list[int]) -> str:
         amplitude = maximo - minimo + 1
         memoria_estimada = sys.getsizeof([]) + amplitude * BYTES_ESTIMADOS_POR_CONTAGEM
         teto_por_tamanho = max(256, int(n * FATOR_AMPLITUDE_CONTAGEM))
-        if (amplitude <= teto_por_tamanho
-                and amplitude <= MAX_AMPLITUDE_CONTAGEM
-                and memoria_estimada <= MAX_MEMORIA_AUXILIAR_CONTAGEM):
+        if (
+            amplitude <= teto_por_tamanho
+            and amplitude <= MAX_AMPLITUDE_CONTAGEM
+            and memoria_estimada <= MAX_MEMORIA_AUXILIAR_CONTAGEM
+        ):
             try:
                 _validar_limites_contagem(
                     amplitude,

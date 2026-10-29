@@ -1,4 +1,5 @@
 """Seis algoritmos de ordenação implementados com a biblioteca padrão."""
+
 from __future__ import annotations
 
 import random
@@ -16,8 +17,9 @@ BYTES_ESTIMADOS_POR_CONTAGEM = 36
 LIMITE_HIBRIDO = 24
 
 
-def _validar_limites_contagem(amplitude: int, max_amplitude: int,
-                              max_memoria_bytes: int) -> None:
+def _validar_limites_contagem(
+    amplitude: int, max_amplitude: int, max_memoria_bytes: int
+) -> None:
     memoria_estimada = sys.getsizeof([]) + amplitude * BYTES_ESTIMADOS_POR_CONTAGEM
     if amplitude > max_amplitude:
         raise ValueError(
@@ -82,8 +84,9 @@ def intercalacao(valores: list[int]) -> list[int]:
     return resultado
 
 
-def _particionar_tres_vias(valores: list[int], inicio: int, fim: int,
-                            pivô: int) -> tuple[int, int]:
+def _particionar_tres_vias(
+    valores: list[int], inicio: int, fim: int, pivô: int
+) -> tuple[int, int]:
     """Particiona intervalo inclusivo em valores <, == e > pivô."""
     menor = atual = inicio
     maior = fim
@@ -141,8 +144,9 @@ def _insercao_intervalo(valores: list[int], inicio: int, fim: int) -> None:
         valores[j + 1] = atual
 
 
-def hibrida(valores: list[int], limite: int = LIMITE_HIBRIDO,
-            seed: int = 0) -> list[int]:
+def hibrida(
+    valores: list[int], limite: int = LIMITE_HIBRIDO, seed: int = 0
+) -> list[int]:
     """Quick Sort nas partições grandes e Insertion Sort nas pequenas."""
     if limite < 1:
         raise ValueError("O limite do algoritmo híbrido deve ser pelo menos 1.")
@@ -175,9 +179,11 @@ def hibrida(valores: list[int], limite: int = LIMITE_HIBRIDO,
     return resultado
 
 
-def contagem(valores: list[int],
-             max_amplitude: int = MAX_AMPLITUDE_CONTAGEM,
-             max_memoria_bytes: int = MAX_MEMORIA_AUXILIAR_CONTAGEM) -> list[int]:
+def contagem(
+    valores: list[int],
+    max_amplitude: int = MAX_AMPLITUDE_CONTAGEM,
+    max_memoria_bytes: int = MAX_MEMORIA_AUXILIAR_CONTAGEM,
+) -> list[int]:
     """Counting Sort estável, incluindo negativos; recusa amplitude insegura."""
     if not valores:
         return []
@@ -244,8 +250,9 @@ METODOS = {
 }
 
 
-def executar_metodo(nome: str, valores: list[int], seed: int = 0,
-                    limite_hibrido: int = LIMITE_HIBRIDO) -> list[int]:
+def executar_metodo(
+    nome: str, valores: list[int], seed: int = 0, limite_hibrido: int = LIMITE_HIBRIDO
+) -> list[int]:
     """Executa um método pelo identificador usado no CSV e na documentação."""
     if nome == "rapida":
         return rapida(valores, seed=seed)

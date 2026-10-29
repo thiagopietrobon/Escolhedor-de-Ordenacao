@@ -1,6 +1,8 @@
 """Testes do método insercao."""
-from algoritmos import insercao
+
 import unittest
+
+from algoritmos import insercao
 from tests.helpers import TesteComumOrdenacao
 
 

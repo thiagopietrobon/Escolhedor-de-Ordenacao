@@ -1,6 +1,8 @@
 """Testes do método hibrida."""
-from algoritmos import hibrida
+
 import unittest
+
+from algoritmos import hibrida
 from tests.helpers import TesteComumOrdenacao
 
 
