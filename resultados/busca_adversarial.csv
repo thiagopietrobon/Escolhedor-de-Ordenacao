@@ -1,0 +1,2 @@
+seed,tamanho,trocas,metodo_escolhido,mediana_metodo_escolhido_s,metodo_mais_rapido_na_busca,menor_mediana_s,tentativa_confirmada,medianas_metodos_s
+50000,10000,100,hibrida,0.023721064,base,0.003830382,true,base:0.003830382;contagem:0.004625834;hibrida:0.023721064;insercao:0.065034759;intercalacao:0.019123496;rapida:0.031781147
