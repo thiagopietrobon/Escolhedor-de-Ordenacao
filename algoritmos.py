@@ -13,24 +13,33 @@ MAX_AMPLITUDE_CONTAGEM = 500_000
 MAX_MEMORIA_AUXILIAR_CONTAGEM = 32 * 1024 * 1024
 BYTES_ESTIMADOS_POR_CONTAGEM = 36
 
+class LimiteContagemExcedido(ValueError):
+    """Indica que o Counting Sort foi recusado por segurança."""
+
 # Será confirmado pela calibração em dados que não fazem parte dos cenários finais.
 LIMITE_HIBRIDO = 24
 
 
 def _validar_limites_contagem(
-    amplitude: int, max_amplitude: int, max_memoria_bytes: int
+    amplitude: int,
+    max_amplitude: int,
+    max_memoria_bytes: int,
 ) -> None:
-    memoria_estimada = sys.getsizeof([]) + amplitude * BYTES_ESTIMADOS_POR_CONTAGEM
+    memoria_estimada = (
+        sys.getsizeof([]) + amplitude * BYTES_ESTIMADOS_POR_CONTAGEM
+    )
+
     if amplitude > max_amplitude:
-        raise ValueError(
-            f"Counting Sort recusado: amplitude {amplitude:,} excede o limite "
-            f"configurado de {max_amplitude:,}."
+        raise LimiteContagemExcedido(
+            f"Counting Sort recusado: amplitude {amplitude:,} "
+            f"excede o limite configurado de {max_amplitude:,}."
         )
+
     if memoria_estimada > max_memoria_bytes:
-        raise ValueError(
+        raise LimiteContagemExcedido(
             "Counting Sort recusado: memória auxiliar estimada de "
-            f"{memoria_estimada:,} bytes excede o limite configurado de "
-            f"{max_memoria_bytes:,} bytes."
+            f"{memoria_estimada:,} bytes excede o limite configurado "
+            f"de {max_memoria_bytes:,} bytes."
         )
 
 

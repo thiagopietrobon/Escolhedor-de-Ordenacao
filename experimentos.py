@@ -19,9 +19,10 @@ from threading import current_thread, main_thread
 from typing import Any
 
 from algoritmos import (
-    LIMITE_HIBRIDO,
     MAX_AMPLITUDE_CONTAGEM,
     MAX_MEMORIA_AUXILIAR_CONTAGEM,
+    LIMITE_HIBRIDO,
+    LimiteContagemExcedido,
     executar_metodo,
 )
 from seletor import escolher, ordenar
@@ -119,23 +120,38 @@ def _gerar_cenarios() -> dict[str, dict[str, Any]]:
 
 
 def _trabalho_medido(
-    nome: str, valores: list[int], seed: int, limite_hibrido: int
+    nome: str,
+    valores: list[int],
+    seed: int,
+    limite_hibrido: int,
 ) -> tuple[str, float | None, list[int] | None, str]:
-    """Função-alvo de processo; o relógio mede só a chamada do algoritmo."""
+    """Executa o algoritmo e classifica corretamente o resultado."""
     inicio = time.perf_counter()
+
     try:
         if nome == "ordenar":
             resultado = ordenar(valores, seed=seed)
         else:
             resultado = executar_metodo(
-                nome, valores, seed=seed, limite_hibrido=limite_hibrido
+                nome,
+                valores,
+                seed=seed,
+                limite_hibrido=limite_hibrido,
             )
+
         return "concluida", time.perf_counter() - inicio, resultado, ""
-    except ValueError as erro:
-        status = "recusada_limite" if nome == "contagem" else "erro"
-        return status, time.perf_counter() - inicio, None, str(erro)
+
+    except LimiteContagemExcedido as erro:
+        return (
+            "recusada_limite",
+            time.perf_counter() - inicio,
+            None,
+            str(erro),
+        )
+
     except TempoEsgotado:
         raise
+
     except Exception as erro:
         return (
             "erro",
