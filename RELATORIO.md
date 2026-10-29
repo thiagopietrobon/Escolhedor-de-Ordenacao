@@ -14,13 +14,15 @@ Não se pressupõe que a seleção automática seja sempre superior. As conclus�
 
 Os experimentos foram realizados com quatro cenários principais, sete alternativas de execução — os seis algoritmos fixos e a função adaptativa — e 15 repetições por combinação.
 
-Antes da execução dos cenários finais, a suíte de testes automatizados foi executada. O registro disponível informa que 14 testes passaram. Durante os experimentos, cada método recebeu uma cópia independente da mesma lista de entrada. A função nativa `sorted()` foi utilizada como referência de correção, e a comparação dos resultados ocorreu fora do intervalo cronometrado.
+Antes da execução dos cenários finais, a suíte de testes automatizados foi executada. Na execução mais recente, **24 testes passaram**. Durante os experimentos, cada método recebeu uma cópia independente da mesma lista de entrada. A função nativa `sorted()` foi utilizada como referência de correção, e a comparação dos resultados ocorreu fora do intervalo cronometrado.
 
 A geração dos dados, a preparação das cópias e a verificação de correção não foram incluídas no tempo de ordenação. A medição utilizou `time.perf_counter()`. As alternativas foram executadas em ordem pseudoaleatória reproduzível, e as sementes foram registradas nos arquivos CSV.
 
 A mediana das 15 repetições foi utilizada como medida principal, reduzindo a influência de variações pontuais. Os tempos são apresentados em segundos.
 
-O arquivo `resultados/resultados.csv` contém 420 registros, correspondentes a quatro cenários, sete alternativas e 15 repetições. Desses registros, 405 correspondem a execuções concluídas e 15 são recusas de Counting Sort por ultrapassarem o limite de segurança definido para a amplitude dos valores. O relatório das medições registra que não houve timeout.
+O arquivo `resultados/resultados.csv` contém 420 registros, correspondentes a quatro cenários, sete alternativas e 15 repetições. Desses registros, 405 correspondem a execuções concluídas e 15 são recusas de Counting Sort por ultrapassarem o limite de segurança definido para a amplitude dos valores. Não foram registrados estados de erro, interrupção ou pendência nos resultados verificados.
+
+O arquivo `resultados/resultados_adversarial.csv` contém outros 105 registros, correspondentes a sete alternativas e 15 repetições do caso adversarial.
 
 ## 3. Algoritmos implementados
 
@@ -124,8 +126,8 @@ A semente dos algoritmos aleatórios nas repetições principais seguiu a regra 
 
 O ambiente registrado nos arquivos de resultados foi:
 
-- Python 3.13.5.
-- Linux x86-64 (`Linux-6.18.55-x86_64-with-glibc2.41`).
+- Python 3.14.6.
+- Windows 11 (`Windows-11-10.0.26300-SP0`).
 - Biblioteca padrão do Python, sem dependências externas.
 - 15 repetições por alternativa em cada cenário.
 - Mediana dos tempos como medida principal.
@@ -135,38 +137,38 @@ Os tempos podem variar em outros computadores, sistemas operacionais, versões d
 
 ## 8. Resultados dos quatro cenários principais
 
-A tabela apresenta as medianas registradas nos experimentos. Para os métodos fixos, o tempo total corresponde ao tempo da ordenação. Para `ordenar(v)`, o tempo total inclui a seleção e a execução do método escolhido.
+A tabela apresenta as medianas registradas nos experimentos atualizados. Para os métodos fixos, o tempo total corresponde ao tempo da ordenação. Para `ordenar(v)`, o tempo total inclui a seleção e a execução do método escolhido.
 
 | Cenário | Alternativa | Mediana do tempo total (s) | Mediana da seleção (s) | Método escolhido | Situação |
 |---|---|---:|---:|---|---|
-| A | `insercao` | 2,804795692 | — | — | Concluída |
-| A | `intercalacao` | 0,023045165 | — | — | Concluída |
-| A | `rapida` | 0,033535514 | — | — | Concluída |
-| A | `hibrida` | 0,027113445 | — | — | Concluída |
+| A | `insercao` | 2,0492572 | — | — | Concluída |
+| A | `intercalacao` | 0,0240407 | — | — | Concluída |
+| A | `rapida` | 0,0219299 | — | — | Concluída |
+| A | `hibrida` | 0,0176803 | — | — | Concluída |
 | A | `contagem` | — | — | — | Recusada por limite |
-| A | `base` | 0,008793352 | — | — | Concluída |
-| A | `ordenar(v)` | 0,031284966 | 0,000061660 | `hibrida` | Concluída |
-| B | `insercao` | 2,501226268 | — | — | Concluída |
-| B | `intercalacao` | 0,024155487 | — | — | Concluída |
-| B | `rapida` | 0,012193101 | — | — | Concluída |
-| B | `hibrida` | 0,011073851 | — | — | Concluída |
-| B | `contagem` | 0,001420372 | — | — | Concluída |
-| B | `base` | 0,002452437 | — | — | Concluída |
-| B | `ordenar(v)` | 0,002270658 | 0,000437714 | `contagem` | Concluída |
-| C | `insercao` | 0,068375614 | — | — | Concluída |
-| C | `intercalacao` | 0,020433356 | — | — | Concluída |
-| C | `rapida` | 0,030543519 | — | — | Concluída |
-| C | `hibrida` | 0,023785615 | — | — | Concluída |
-| C | `contagem` | 0,002245669 | — | — | Concluída |
-| C | `base` | 0,003829602 | — | — | Concluída |
-| C | `ordenar(v)` | 0,022684686 | 0,000058001 | `hibrida` | Concluída |
-| D | `insercao` | 0,000009319 | — | — | Concluída |
-| D | `intercalacao` | 0,000017025 | — | — | Concluída |
-| D | `rapida` | 0,000029477 | — | — | Concluída |
-| D | `hibrida` | 0,000018068 | — | — | Concluída |
-| D | `contagem` | 0,000115637 | — | — | Concluída |
-| D | `base` | 0,000045406 | — | — | Concluída |
-| D | `ordenar(v)` | 0,000009423 | 0,000000259 | `insercao` | Concluída |
+| A | `base` | 0,0086396 | — | — | Concluída |
+| A | `ordenar(v)` | 0,0183919 | 0,0000874 | `hibrida` | Concluída |
+| B | `insercao` | 2,0045029 | — | — | Concluída |
+| B | `intercalacao` | 0,0243802 | — | — | Concluída |
+| B | `rapida` | 0,0079714 | — | — | Concluída |
+| B | `hibrida` | 0,0080498 | — | — | Concluída |
+| B | `contagem` | 0,0016335 | — | — | Concluída |
+| B | `base` | 0,0025893 | — | — | Concluída |
+| B | `ordenar(v)` | 0,0019907 | 0,0003272 | `contagem` | Concluída |
+| C | `insercao` | 0,0578256 | — | — | Concluída |
+| C | `intercalacao` | 0,0217871 | — | — | Concluída |
+| C | `rapida` | 0,0212262 | — | — | Concluída |
+| C | `hibrida` | 0,0171369 | — | — | Concluída |
+| C | `contagem` | 0,0025634 | — | — | Concluída |
+| C | `base` | 0,0041541 | — | — | Concluída |
+| C | `ordenar(v)` | 0,0174716 | 0,0000757 | `hibrida` | Concluída |
+| D | `insercao` | 0,0000171 | — | — | Concluída |
+| D | `intercalacao` | 0,0000334 | — | — | Concluída |
+| D | `rapida` | 0,0000569 | — | — | Concluída |
+| D | `hibrida` | 0,0000350 | — | — | Concluída |
+| D | `contagem` | 0,0001735 | — | — | Concluída |
+| D | `base` | 0,0001096 | — | — | Concluída |
+| D | `ordenar(v)` | 0,0000171 | 0,0000005 | `insercao` | Concluída |
 
 No cenário A, Counting Sort foi recusado nas 15 repetições porque a amplitude real, 1.999.542.472, ultrapassou o limite configurado de 500.000. Por esse motivo, não existe mediana válida para essa combinação.
 
@@ -174,35 +176,41 @@ No cenário A, Counting Sort foi recusado nas 15 repetições porque a amplitude
 
 ### 9.1. Cenário A — Aleatória ampla
 
-Entre as alternativas que concluíram a ordenação, Radix Sort apresentou a menor mediana, de 0,008793352 s. A mediana de `ordenar(v)` foi 0,031284966 s, e o seletor escolheu o método híbrido.
+Entre as alternativas que concluíram a ordenação, Radix Sort (`base`) apresentou a menor mediana, de 0,0086396 s. A mediana de `ordenar(v)` foi 0,0183919 s, e o seletor escolheu o método híbrido.
 
-O seletor não foi a alternativa mais rápida entre as que concluíram. Counting Sort não pode ser incluído nessa comparação como uma alternativa concluída, pois foi recusado pelo limite de segurança.
+A chamada automática foi aproximadamente 2,13 vezes mais lenta que Radix Sort. O seletor não foi a alternativa mais rápida entre as que concluíram. Counting Sort não pode ser incluído nessa comparação como uma alternativa concluída, pois foi recusado pelo limite de segurança.
 
 ### 9.2. Cenário B — Faixa estreita
 
-Counting Sort apresentou a menor mediana, de 0,001420372 s. O seletor também escolheu esse método, mas a chamada completa de `ordenar(v)` apresentou mediana de 0,002270658 s.
+Counting Sort apresentou a menor mediana, de 0,0016335 s. O seletor também escolheu esse método, mas a chamada completa de `ordenar(v)` apresentou mediana de 0,0019907 s.
 
-A mediana da chamada automática foi aproximadamente 1,60 vez a mediana do Counting Sort executado diretamente. Isso mostra que acertar a escolha não elimina o custo da análise prévia.
+A mediana da chamada automática foi aproximadamente 1,22 vez a mediana do Counting Sort executado diretamente. Isso mostra que acertar a escolha não elimina o custo da análise prévia.
+
+Apesar desse custo, o seletor apresentou desempenho competitivo nesse cenário: a chamada automática foi mais rápida que as outras alternativas fixas concluídas, com exceção do próprio Counting Sort executado diretamente.
 
 ### 9.3. Cenário C — Quase ordenada
 
-Counting Sort apresentou a menor mediana, de 0,002245669 s. O seletor escolheu o método híbrido, cuja chamada automática teve mediana de 0,022684686 s.
+Counting Sort apresentou a menor mediana, de 0,0025634 s. O seletor escolheu o método híbrido, cuja chamada automática teve mediana de 0,0174716 s.
 
-A mediana automática foi aproximadamente 10,10 vezes a mediana do Counting Sort fixo. Embora a lista estivesse quase ordenada, sua amplitude real era 10.000, valor que atendia aos limites de segurança do método de contagem.
+A mediana automática foi aproximadamente 6,82 vezes a mediana do Counting Sort fixo. Embora a lista estivesse quase ordenada, sua amplitude real era compatível com os limites de segurança do método de contagem.
 
 Esse resultado evidencia uma limitação importante: estar quase ordenada não é a única característica relevante para a escolha de um algoritmo. A amplitude dos valores também pode influenciar significativamente o desempenho.
 
+A chamada automática ficou próxima do tempo do método híbrido fixo, mas não superou Counting Sort, que apresentou desempenho consideravelmente melhor para essa entrada.
+
 ### 9.4. Cenário D — Lista pequena
 
-Insertion Sort apresentou mediana de 0,000009319 s, enquanto a função automática apresentou mediana de 0,000009423 s. O seletor escolheu Insertion Sort, mas a chamada automática foi ligeiramente mais lenta.
+Insertion Sort apresentou mediana de 0,0000171 s, e a função automática apresentou a mesma mediana quando arredondada para sete casas decimais. O seletor escolheu Insertion Sort.
 
-A diferença foi de 0,000000104 s, ou 0,104 microssegundo. Essa diferença é pequena e deve ser interpretada com cautela, pois as medições de tempos muito curtos são sensíveis às condições de execução.
+A igualdade apresentada na tabela não significa que os tempos de todas as execuções foram idênticos; significa que as medianas coincidem na precisão exibida. Como os tempos são muito curtos, diferenças pequenas devem ser interpretadas com cautela.
+
+O resultado indica que, nesse cenário, a seleção automática manteve desempenho equivalente ao do algoritmo escolhido, sem diferença relevante na precisão apresentada.
 
 ### 9.5. Comparação geral
 
-O seletor não apresentou mediana inferior à de todos os métodos fixos em nenhum dos quatro cenários com comparação completa. No cenário A, Counting Sort não concluiu por segurança, portanto não existe comparação válida com todas as sete alternativas.
+O seletor não apresentou mediana inferior à de todos os métodos fixos em nenhum dos quatro cenários. No cenário A, Counting Sort não concluiu por segurança, portanto não existe comparação válida com todas as sete alternativas.
 
-Nos cenários B e C, Counting Sort foi mais rápido que a chamada automática. No cenário D, Insertion Sort foi ligeiramente mais rápido. No cenário A, Radix Sort foi a alternativa mais rápida entre as que concluíram.
+Nos cenários B e C, Counting Sort foi mais rápido que a chamada automática. No cenário D, a mediana da chamada automática coincidiu com a de Insertion Sort na precisão apresentada. No cenário A, Radix Sort foi a alternativa mais rápida entre as que concluíram.
 
 Esses resultados não tornam o seletor inútil, mas mostram que sua qualidade depende das regras de decisão e do custo de analisar a entrada. Uma política adaptativa deve ser avaliada pelo tempo total, e não somente pelo algoritmo que escolhe.
 
@@ -212,10 +220,10 @@ A função `escolher(v)` foi medida separadamente para avaliar o custo da análi
 
 | Cenário | Mediana de `escolher(v)` (s) | Mediana de `ordenar(v)` (s) | Método escolhido |
 |---|---:|---:|---|
-| A | 0,000061660 | 0,031284966 | `hibrida` |
-| B | 0,000437714 | 0,002270658 | `contagem` |
-| C | 0,000058001 | 0,022684686 | `hibrida` |
-| D | 0,000000259 | 0,000009423 | `insercao` |
+| A | 0,0000874 | 0,0183919 | `hibrida` |
+| B | 0,0003272 | 0,0019907 | `contagem` |
+| C | 0,0000757 | 0,0174716 | `hibrida` |
+| D | 0,0000005 | 0,0000171 | `insercao` |
 
 As medições de seleção foram realizadas separadamente das medições da chamada completa. Portanto, não se deve somar as medianas dessas colunas para estimar o tempo total: a mediana da soma não é necessariamente igual à soma das medianas.
 
@@ -229,17 +237,17 @@ A lista adversarial foi construída a partir de `range(10000)`, com 100 trocas d
 
 | Alternativa | Mediana do tempo total (s) |
 |---|---:|
-| `insercao` | 0,066926937 |
-| `intercalacao` | 0,020651374 |
-| `rapida` | 0,029813884 |
-| `hibrida` | 0,023714968 |
-| `contagem` | 0,002202427 |
-| `base` | 0,004295495 |
-| `ordenar(v)` | 0,026529763 |
+| `insercao` | 0,0546553 |
+| `intercalacao` | 0,0218325 |
+| `rapida` | 0,0212052 |
+| `hibrida` | 0,0165669 |
+| `contagem` | 0,0025624 |
+| `base` | 0,0041951 |
+| `ordenar(v)` | 0,0170272 |
 
-O seletor escolheu o método híbrido nas 15 repetições. A amostra identificou quatro descidas, acima do limite de duas, e apresentou amplitude amostrada de 9.999, acima do teto operacional de 4.096. Por isso, o seletor não realizou a verificação exata da faixa e utilizou o método híbrido como alternativa padrão.
+O seletor escolheu o método híbrido nas 15 repetições. A amostra identificou características que impediram a consideração de Counting Sort pela regra de amplitude amostrada. Assim, o seletor utilizou o método híbrido como alternativa padrão.
 
-A amplitude real da lista era 10.000, compatível com os limites de segurança do Counting Sort. Esse algoritmo apresentou mediana de 0,002202427 s, enquanto a chamada automática apresentou mediana de 0,026529763 s — aproximadamente 12,05 vezes mais lenta.
+A amplitude real da lista era 10.000, compatível com os limites de segurança do Counting Sort. Esse algoritmo apresentou mediana de 0,0025624 s, enquanto a chamada automática apresentou mediana de 0,0170272 s — aproximadamente 6,65 vezes mais lenta.
 
 O caso mostra que uma amostra pode não representar adequadamente as características relevantes de toda a entrada. A limitação não decorre de uma falha de correção da ordenação, mas de uma decisão de seleção que não escolheu o método mais rápido entre os avaliados.
 
@@ -264,7 +272,9 @@ Os resultados devem ser interpretados considerando as seguintes limitações:
 
 Os experimentos mostram que a seleção automática pode escolher um algoritmo adequado em determinadas situações, mas não garante desempenho superior à execução de um método fixo. A avaliação revelou que o custo da análise e as limitações das regras de seleção podem reduzir ou eliminar o benefício esperado.
 
-No cenário de faixa estreita, o seletor identificou Counting Sort, mas a chamada completa ainda foi mais lenta que a execução direta do algoritmo. No cenário quase ordenado, a amostragem levou à escolha do método híbrido, apesar da vantagem do Counting Sort. O caso adversarial confirmou essa limitação em uma entrada reproduzível. Para listas pequenas, a diferença entre a chamada automática e Insertion Sort foi mínima, mas o método fixo ainda apresentou a menor mediana.
+No cenário de faixa estreita, o seletor identificou Counting Sort, mas a chamada completa foi mais lenta que a execução direta desse algoritmo. No cenário quase ordenado, a amostragem levou à escolha do método híbrido, apesar da vantagem do Counting Sort. O caso adversarial confirmou essa limitação em uma entrada reproduzível. Para listas pequenas, a chamada automática apresentou a mesma mediana de Insertion Sort na precisão exibida.
+
+No cenário de valores aleatórios com ampla amplitude, Radix Sort apresentou o menor tempo entre os métodos que concluíram. Counting Sort foi recusado corretamente por ultrapassar o limite de segurança configurado, demonstrando que a proteção contra consumo excessivo de memória faz parte do comportamento esperado da implementação.
 
 A conclusão é que a seleção adaptativa deve considerar tanto o custo de ordenar quanto o custo de analisar a entrada. Os resultados sustentam uma avaliação limitada às condições testadas: o seletor implementado não superou consistentemente os métodos fixos e ainda possui limitações que poderiam ser investigadas em trabalhos futuros.
 
