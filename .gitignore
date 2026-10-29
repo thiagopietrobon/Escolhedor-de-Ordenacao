@@ -1,0 +1,4 @@
+__pycache__/
+*.py[cod]
+resultados/execucao.log
+resultados/execucao.pid
