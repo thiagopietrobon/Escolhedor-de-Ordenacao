@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import csv
+import math
 import multiprocessing
 import os
 import platform
@@ -30,7 +31,22 @@ ARQUIVO_RESULTADOS = PASTA_RESULTADOS / "resultados.csv"
 ARQUIVO_ADVERSARIAL = PASTA_RESULTADOS / "resultados_adversarial.csv"
 ARQUIVO_BUSCA = PASTA_RESULTADOS / "busca_adversarial.csv"
 REPETICOES = 15
-TEMPO_LIMITE_SEGUNDOS = float(os.environ.get("ORDENACAO_TIMEOUT_S", "60"))
+
+
+def _obter_timeout() -> float:
+    texto = os.environ.get("ORDENACAO_TIMEOUT_S", "60")
+    try:
+        timeout = float(texto)
+    except ValueError as erro:
+        raise ValueError(
+            "ORDENACAO_TIMEOUT_S deve ser um número positivo."
+        ) from erro
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError("ORDENACAO_TIMEOUT_S deve ser um número positivo.")
+    return timeout
+
+
+TEMPO_LIMITE_SEGUNDOS = _obter_timeout()
 METODOS_FIXOS = ["insercao", "intercalacao", "rapida", "hibrida", "contagem", "base"]
 ALTERNATIVAS = METODOS_FIXOS + ["ordenar"]
 CAMPOS = [
@@ -100,10 +116,11 @@ def _trabalho_medido(nome: str, valores: list[int], seed: int,
             resultado = executar_metodo(nome, valores, seed=seed, limite_hibrido=limite_hibrido)
         return "concluida", time.perf_counter() - inicio, resultado, ""
     except ValueError as erro:
-        return "recusada_limite", time.perf_counter() - inicio, None, str(erro)
+        status = "recusada_limite" if nome == "contagem" else "erro"
+        return status, time.perf_counter() - inicio, None, str(erro)
     except TempoEsgotado:
         raise
-    except BaseException as erro:  # preserva erro explícito no CSV
+    except Exception as erro:
         return "erro", time.perf_counter() - inicio, None, f"{type(erro).__name__}: {erro}"
 
 
@@ -146,6 +163,18 @@ def _executar_com_limite(nome: str, valores: list[int], seed: int) -> tuple[str,
     processo.start()
     conexao_filho.close()
     if not conexao_pai.poll(TEMPO_LIMITE_SEGUNDOS):
+        if not processo.is_alive():
+            processo.join()
+            try:
+                resultado = conexao_pai.recv()
+            except (EOFError, OSError):
+                resultado = (
+                    "erro", None, None,
+                    "O processo filho terminou sem enviar um resultado "
+                    f"(código de saída {processo.exitcode}).",
+                )
+            conexao_pai.close()
+            return resultado
         processo.terminate()
         processo.join()
         conexao_pai.close()
